@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<sounds>
+    <sound id="Clear">resources/audio/game/sfx/clear.wav</sound>
+    <sound id="Move">resources/audio/game/sfx/move.wav</sound>
+    <sound id="Place">resources/audio/game/sfx/place.wav</sound>
+    <sound id="Rotate">resources/audio/game/sfx/rotate.wav</sound>
+    
+    <sound id="Win">resources/audio/game/sfx/win.wav</sound>
+    <sound id="Lose">resources/audio/game/sfx/lose.wav</sound>
+    <sound id="Countdown">resources/audio/game/sfx/countdown.wav</sound>
+    
+    <sound id="Music1">resources/audio/game/music/music1.mid</sound>
+    <sound id="Music2">resources/audio/game/music/music2.mid</sound>
+    <sound id="Music3">resources/audio/game/music/music3.mid</sound>
+    <sound id="Music4">resources/audio/game/music/music4.mid</sound>
+    <sound id="Music5">resources/audio/game/music/music5.mid</sound>
+</sounds>
