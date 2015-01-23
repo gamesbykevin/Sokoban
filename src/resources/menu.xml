@@ -30,7 +30,7 @@
         <image>resources/images/menu/untitled.png</image>
         <optionContainerRatio>0.5</optionContainerRatio>
         <optionBorderThickness>5</optionBorderThickness>
-        <title>Tetris</title>
+        <title>Sokoban</title>
         <backgroundMusicLocation></backgroundMusicLocation>
         <optionSoundLocation>resources/audio/menu/sound/selection.wav</optionSoundLocation>
         <options name="Start Game" next="GameStart" id="GameStart"></options>
