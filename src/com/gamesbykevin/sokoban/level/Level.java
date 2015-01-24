@@ -5,6 +5,7 @@ import com.gamesbykevin.framework.base.Sprite;
 import com.gamesbykevin.framework.resources.Disposable;
 
 import com.gamesbykevin.sokoban.engine.Engine;
+import com.gamesbykevin.sokoban.level.object.Box;
 import com.gamesbykevin.sokoban.level.object.LevelObject;
 import com.gamesbykevin.sokoban.resources.GameImages.Keys;
 import com.gamesbykevin.sokoban.shared.IElement;
@@ -31,40 +32,90 @@ public class Level extends Sprite implements Disposable, IElement
     private List<LevelObject> levelObjects;
     
     //the default dimension of each col, row in the level
-    protected static final int DEFAULT_DIMENSION = 32;
+    public static final int DEFAULT_DIMENSION = 32;
     
     //the floor for the level
     private LevelObject floor;
     
-    //starting location for the character
+    //the entire dimensions of the level
+    private final int cols, rows;
+    
+    //the starting location for the player
     private Cell start;
     
-    protected Level()
+    protected Level(final int cols, final int rows)
     {
         super();
+        
+        //store overall level dimensions
+        this.cols = cols;
+        this.rows = rows;
         
         //create list
         this.levelObjects = new ArrayList<>();
     }
     
     /**
-     * Set the character starting location
+     * Get the columns
+     * @return The total number of columns in this level
+     */
+    public int getColumns()
+    {
+        return this.cols;
+    }
+    
+    /**
+     * Get the rows
+     * @return The total number of rows in this level
+     */
+    public int getRows()
+    {
+        return this.rows;
+    }
+    
+    /**
+     * Get the physical level object at the specified location.
+     * @param col Column we want to look at
+     * @param row Row we want to look at
+     * @return level object found at the specified location that is a box or wall, if not found null is returned
+     */
+    public LevelObject getPhysicalLevelObject(final int col, final int row)
+    {
+        for (int i = 0; i < levelObjects.size(); i++)
+        {
+            //get the current level object
+            LevelObject object = levelObjects.get(i);
+            
+            //if the object exists at this location
+            if (object.equals(col, row))
+            {
+                //we only want the physical objects
+                if (object.isBox() || object.isWall())
+                    return object;
+            }
+        }
+        
+        //nothing was found
+        return null;
+    }
+    
+    /**
+     * Set the starting location of the character for this level
      * @param col Column
      * @param row Row
      */
     protected void setStart(final int col, final int row)
     {
-        if (start == null)
-            start = new Cell();
+        if (this.start == null)
+            this.start = new Cell();
         
-        //set the start location for the player
-        start.setCol(col);
-        start.setRow(row);
+        this.start.setCol(col);
+        this.start.setRow(row);
     }
     
     /**
-     * Get the start
-     * @return The starting location of the character
+     * Get the starting location of the player
+     * @return The col, row where the player should start
      */
     public Cell getStart()
     {
@@ -78,6 +129,18 @@ public class Level extends Sprite implements Disposable, IElement
     protected void setFloor(final LevelObject floor)
     {
         this.floor = floor;
+    }
+    
+    /**
+     * Move all of the level objects back to their original starting position
+     */
+    public void reset()
+    {
+        for (int i = 0; i < levelObjects.size(); i++)
+        {
+            //reset the current level object
+            levelObjects.get(i).reset();
+        }
     }
     
     /**
@@ -106,6 +169,12 @@ public class Level extends Sprite implements Disposable, IElement
             levelObjects.clear();
             levelObjects = null;
         }
+        
+        if (floor != null)
+        {
+            floor.dispose();
+            floor = null;
+        }
     }
     
     /**
@@ -113,9 +182,9 @@ public class Level extends Sprite implements Disposable, IElement
      * @param object containing the row
      * @return the upper left y-coordinate for the specified row
      */
-    public int getStartY(final LevelObject object)
+    public double getStartY(final LevelObject object)
     {
-        return getStartY((int)object.getRow());
+        return getStartY(object.getRow());
     }
     
     /**
@@ -123,9 +192,9 @@ public class Level extends Sprite implements Disposable, IElement
      * @param row Row
      * @return the upper left y-coordinate for the specified row
      */
-    public int getStartY(final int row)
+    public double getStartY(final double row)
     {
-        return (int)(getY() + (Level.DEFAULT_DIMENSION * row));
+        return (getY() + ((double)Level.DEFAULT_DIMENSION * row));
     }
     
     /**
@@ -133,9 +202,9 @@ public class Level extends Sprite implements Disposable, IElement
      * @param object containing the column
      * @return the upper left x-coordinate for the specified column
      */
-    public int getStartX(final LevelObject object)
+    public double getStartX(final LevelObject object)
     {
-        return getStartX((int)object.getCol());
+        return getStartX(object.getCol());
     }
     
     /**
@@ -143,9 +212,9 @@ public class Level extends Sprite implements Disposable, IElement
      * @param col Column
      * @return the upper left x-coordinate for the specified column
      */
-    public int getStartX(final int col)
+    public double getStartX(final double col)
     {
-        return (int)(getX() + (Level.DEFAULT_DIMENSION * col));
+        return (getX() + ((double)Level.DEFAULT_DIMENSION * col));
     }
     
     @Override
@@ -162,31 +231,83 @@ public class Level extends Sprite implements Disposable, IElement
             //update object
             object.update(engine);
             
+            //if this object is a box, check for goal match
+            if (object.isBox())
+                checkBoxAnimation(object);
+            
             //set coordinates
             object.setX(getStartX(object) + (Level.DEFAULT_DIMENSION / 2) - (object.getWidth() / 2));
             object.setY(getStartY(object) + (Level.DEFAULT_DIMENSION / 2) - (object.getHeight() / 2));
         }
     }
     
+    /**
+     * Check the box, to set the correct animation.<br>
+     * @param object The object representing the box
+     */
+    private void checkBoxAnimation(final LevelObject object)
+    {
+        //is there a goal that has the same location as the box
+        boolean match = false;
+        
+        //check each level object
+        for (int i = 0; i < levelObjects.size(); i++)
+        {
+            //if this is not a goal, skip
+            if (!levelObjects.get(i).isGoal())
+                continue;
+                
+            //if the location matches the box object, hide the goal
+            if (levelObjects.get(i).equals(object))
+            {
+                //flag match
+                match = true;
+                
+                //exit loop
+                break;
+            }
+        }
+        
+        //set box animation accordingly
+        object.setAnimation((match) ? Box.ON_GOAL : Box.NORMAL);
+    }
+    
     @Override
     public void render(final Graphics graphics)
     {
-        for (int i = 0; i < levelObjects.size(); i++)
+        //draw the floor first
+        for (int col = 0; col < getColumns(); col++)
         {
-            LevelObject object = levelObjects.get(i);
-            
-            //if object isn't floor, draw the floor
-            if (!object.isFloor())
+            for (int row = 0; row < getRows(); row++)
             {
                 //set floor location to current level object
-                floor.setLocation(getStartX(object), getStartY(object));
+                floor.setLocation(getStartX(col), getStartY(row));
 
                 //draw floor first 
                 floor.render(graphics, getImage());
             }
+        }
+        
+        //now draw the goals
+        for (int i = 0; i < levelObjects.size(); i++)
+        {
+            //get the current level object
+            LevelObject object = levelObjects.get(i);
             
-            //now draw level
-            object.render(graphics, getImage());
+            //only draw the goal
+            if (object.isGoal())
+                object.render(graphics, getImage());
+        }
+        
+        //now draw the rest
+        for (int i = 0; i < levelObjects.size(); i++)
+        {
+            //get the current level object
+            LevelObject object = levelObjects.get(i);
+            
+            //only draw if not the goal
+            if (!object.isGoal())
+                object.render(graphics, getImage());
         }
     }
 }

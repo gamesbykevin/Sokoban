@@ -7,8 +7,10 @@ import com.gamesbykevin.sokoban.engine.Engine;
 import com.gamesbykevin.sokoban.level.object.*;
 import com.gamesbykevin.sokoban.resources.GameText.Keys;
 import com.gamesbykevin.sokoban.shared.IElement;
+import com.gamesbykevin.sokoban.shared.Shared;
 
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -180,7 +182,7 @@ public final class Levels implements Disposable, IElement
         final int rows = (finish + 1) - start;
         
         //object representing the level
-        Level level = new Level();
+        Level level = new Level(maxCols, rows);
         
         //pick random floor
         LevelObject.Type floorType = Floor.FLOORS[random.nextInt(Floor.FLOORS.length)];
@@ -223,10 +225,10 @@ public final class Levels implements Disposable, IElement
                             break;
 
                         case Level.KEY_BOX_ON_GOAL:
-                            //add goal first
+                            //add goal
                             addObject(new Goal(goalType), col, row, level);
                             
-                            //then add box on top
+                            //then add box on top with the appropriate animation
                             LevelObject object = new Box(boxType);
                             object.setAnimation(Box.ON_GOAL);
                             addObject(object, col, row, level);
@@ -244,12 +246,10 @@ public final class Levels implements Disposable, IElement
                             break;
 
                         case Level.KEY_FLOOR:
-                            addObject(new Floor(floorType), col, row, level);
+                            //do nothing for the floor
                             break;
                             
                         case Level.KEY_PLAYER:
-                            addObject(new Floor(floorType), col, row, level);
-                            
                             //set start location for character
                             level.setStart(col, row);
                             break;
@@ -287,6 +287,12 @@ public final class Levels implements Disposable, IElement
         //set (col, row) location
         object.setCol(col);
         object.setRow(row);
+        
+        //assign the starting location as well
+        object.setStart(col, row);
+        
+        //assign the destination
+        object.setDestination(col, row);
 
         //the goal is half the size of the default dimensions
         if (object.isGoal())
@@ -308,6 +314,14 @@ public final class Levels implements Disposable, IElement
 
         //add object to level
         level.add(object);
+    }
+    
+    private void positionLevel(final Rectangle screen)
+    {
+        final int x = screen.x + (screen.width/2) - ((getLevel().getColumns() * Level.DEFAULT_DIMENSION) / 2);
+        final int y = screen.y + (screen.height/2) - ((getLevel().getRows() * Level.DEFAULT_DIMENSION) / 2);
+        
+        getLevel().setLocation(x, y);
     }
     
     @Override
@@ -337,6 +351,15 @@ public final class Levels implements Disposable, IElement
             {
                 //pick random level for now
                 this.index = engine.getRandom().nextInt(levels.size());
+                
+                if (Shared.DEBUG)
+                    System.out.println("Level = " + index);
+                
+                //position level in center of window
+                positionLevel(engine.getManager().getWindow());
+                
+                //set the character's starting location
+                engine.getManager().getPlayer().setCharacterStart(getLevel().getStart());
             }
         }
         else

@@ -8,6 +8,7 @@ import com.gamesbykevin.sokoban.engine.Engine;
 import com.gamesbykevin.sokoban.level.Levels;
 import com.gamesbykevin.sokoban.menu.CustomMenu;
 import com.gamesbykevin.sokoban.menu.CustomMenu.*;
+import com.gamesbykevin.sokoban.player.Player;
 import com.gamesbykevin.sokoban.resources.GameAudio;
 import com.gamesbykevin.sokoban.resources.GameFont;
 import com.gamesbykevin.sokoban.resources.GameImages;
@@ -33,6 +34,9 @@ public final class Manager implements IManager
     //object containing all the levels
     private Levels levels;
     
+    //the object representing the player in play
+    private Player player;
+    
     /**
      * Constructor for Manager, this is the point where we load any menu option configurations
      * @param engine Engine for our game that contains all objects needed
@@ -57,7 +61,27 @@ public final class Manager implements IManager
         {
             levels = new Levels();
         }
+        
+        if (player == null)
+        {
+            player = new Player();
+        }
     }
+    
+    /**
+     * Object containing all of the levels in the game
+     * @return Object containing all of the levels in the game
+     */
+    public Levels getLevels()
+    {
+        return this.levels;
+    }
+    
+    public Player getPlayer()
+    {
+        return this.player;
+    }
+            
     
     @Override
     public Rectangle getWindow()
@@ -105,10 +129,19 @@ public final class Manager implements IManager
     @Override
     public void update(final Engine engine) throws Exception
     {
-        if (levels != null)
+        if (getLevels() != null)
         {
-            levels.update(engine);
+            //update the levels
+            getLevels().update(engine);
+            
+            //if we are done loading the levels update the player
+            if (!getLevels().isLoading())
+            {
+                if (getPlayer() != null)
+                    getPlayer().update(engine);
+            }
         }
+        
     }
     
     /**
@@ -118,9 +151,15 @@ public final class Manager implements IManager
     @Override
     public void render(final Graphics graphics)
     {
-        if (levels != null)
+        if (getLevels() != null)
         {
-            levels.render(graphics);
+            getLevels().render(graphics);
+            
+            if (!getLevels().isLoading())
+            {
+                if (getPlayer() != null)
+                    getPlayer().render(graphics);
+            }
         }
     }
 }
