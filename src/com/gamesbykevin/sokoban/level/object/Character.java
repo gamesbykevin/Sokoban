@@ -54,6 +54,9 @@ public final class Character extends LevelObject
         super.addAnimation(south, SOUTH);
         super.addAnimation(east, EAST);
         super.addAnimation(west, WEST);
+        
+        //set default animation
+        super.setAnimation(SOUTH);
     }
     
     @Override

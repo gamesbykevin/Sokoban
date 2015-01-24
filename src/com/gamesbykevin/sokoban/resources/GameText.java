@@ -16,7 +16,7 @@ public final class GameText extends TextManager
      */
     public enum Keys
     {
-        
+        Levels
     }
     
     public GameText() throws Exception

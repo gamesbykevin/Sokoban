@@ -17,22 +17,25 @@ public final class Box extends LevelObject
     };
     
     //dimensions of this level object
-    public static final int WIDTH = 64;
-    public static final int HEIGHT = 64;
+    private static final int WIDTH = 64;
+    private static final int HEIGHT = 64;
     
     //the different images for the box
-    private static final String NORMAL = "NORMAL";
-    private static final String ON_GOAL = "ON_GOAL";
+    public static final String NORMAL = "NORMAL";
+    public static final String ON_GOAL = "ON_GOAL";
     
-    public Box(final Random random)
+    public Box(final Random random) throws Exception
     {
         //pick random box type
         this(BOXES[random.nextInt(BOXES.length)]);
     }
     
-    public Box(final Type type)
+    public Box(final Type type) throws Exception
     {
         super(type);
+        
+        //setup animations
+        setup();
     }
     
     /**
@@ -87,6 +90,9 @@ public final class Box extends LevelObject
             default:
                 throw new Exception("Level Object Type not found = " + getType());
         }
+        
+        //default the normal animation for now
+        super.getSpriteSheet().setCurrent(NORMAL);
     }
     
     @Override

@@ -28,24 +28,115 @@ public abstract class LevelObject extends Sprite implements Disposable
         CHARACTER
     }
     
-    
-    
-    
     //the type of object this is
     private final Type type;
     
     //default animation time delay between frames
     protected static final long DEFAULT_DELAY = Timers.toNanoSeconds(250L);
     
+    //the default key for animations
+    protected static final String DEFAULT_ANIMATION_KEY = "DEFAULT";
+    
     protected LevelObject(final Type type)
     {
         this.type = type;
+        
+        //create the spritesheet
+        createSpriteSheet();
     }
     
     @Override
     public void dispose()
     {
         super.dispose();
+    }
+    
+    public boolean isWall()
+    {
+        switch (getType())
+        {
+            case WALL_BLACK_FLAT:
+            case WALL_BLACK_ROUNDED:
+            case WALL_GRAY_FLAT:
+            case WALL_GRAY_ROUNDED:
+            case WALL_BROWN_FLAT:
+            case WALL_BROWN_ROUNDED:
+            case WALL_BEIGE_FLAT:
+            case WALL_BEIGE_ROUNDED:
+                return true;
+                
+            default:
+                return false;
+        }
+    }
+    
+    public boolean isBox()
+    {
+        switch (getType())
+        {
+            case BOX_BLACK:
+            case BOX_GRAY:
+            case BOX_BROWN:
+            case BOX_BEIGE:
+            case BOX_RED:
+            case BOX_YELLOW:
+            case BOX_BLUE:
+            case BOX_PURPLE:
+                return true;
+                
+            default:
+                return false;
+        }
+    }
+    
+    public boolean isGoal()
+    {
+        switch (getType())
+        {
+            case GOAL_BLACK:
+            case GOAL_GRAY:
+            case GOAL_BROWN:
+            case GOAL_BEIGE:
+            case GOAL_RED:
+            case GOAL_YELLOW:
+            case GOAL_BLUE:
+            case GOAL_PURPLE:
+                return true;
+                
+            default:
+                return false;
+        }
+    }
+    
+    public boolean isFloor()
+    {
+        switch (getType())
+        {
+            case FLOOR_GRAY1:
+            case FLOOR_GRAY2:
+            case FLOOR_BROWN1:
+            case FLOOR_BROWN2:
+            case FLOOR_BEIGE1:
+            case FLOOR_BEIGE2:
+            case FLOOR_GREEN1:
+            case FLOOR_GREEN2:
+                return true;
+                
+            default:
+                return false;
+        }
+    }
+    
+    public boolean isCharacter()
+    {
+        switch (getType())
+        {
+            case CHARACTER:
+                return true;
+                
+            default:
+                return false;
+        }
     }
     
     /**
@@ -55,16 +146,6 @@ public abstract class LevelObject extends Sprite implements Disposable
      */
     protected void updateAnimation(final long time) throws Exception
     {
-        //if the sprite sheet does not exist create and setup animation
-        if (getSpriteSheet() == null)
-        {
-            //create the spritesheet
-            createSpriteSheet();
-            
-            //setup animation
-            setup();
-        }
-        
         super.getSpriteSheet().update(time);
     }
     
@@ -81,7 +162,7 @@ public abstract class LevelObject extends Sprite implements Disposable
     protected abstract void setup() throws Exception;
     
     /**
-     * Add a single frame animation with no unique key to access
+     * Add a single frame animation with default unique key to access
      * @param x x-coordinate
      * @param y y-coordinate
      * @param w width
@@ -89,7 +170,7 @@ public abstract class LevelObject extends Sprite implements Disposable
      */
     protected void addAnimation(final int x, final int y, final int w, final int h)
     {
-        addAnimation(x, y, w, h, "");
+        addAnimation(x, y, w, h, DEFAULT_ANIMATION_KEY);
     }
     
     /**
@@ -111,6 +192,11 @@ public abstract class LevelObject extends Sprite implements Disposable
     protected void addAnimation(final Animation animation, final String key)
     {
         super.getSpriteSheet().add(animation, key);
+    }
+    
+    public void setAnimation(final String key)
+    {
+        super.getSpriteSheet().setCurrent(key);
     }
     
     public Type getType()

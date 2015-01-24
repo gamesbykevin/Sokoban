@@ -3,4 +3,5 @@
     <!--
     <textFile id="test">resources/text/level.txt</textFile>
     -->
+    <textFile id="Levels">resources/text/levels.txt</textFile>
 </textFiles>

@@ -5,11 +5,13 @@ import com.gamesbykevin.framework.menu.Menu;
 import com.gamesbykevin.framework.util.*;
 
 import com.gamesbykevin.sokoban.engine.Engine;
+import com.gamesbykevin.sokoban.level.Levels;
 import com.gamesbykevin.sokoban.menu.CustomMenu;
 import com.gamesbykevin.sokoban.menu.CustomMenu.*;
 import com.gamesbykevin.sokoban.resources.GameAudio;
 import com.gamesbykevin.sokoban.resources.GameFont;
 import com.gamesbykevin.sokoban.resources.GameImages;
+
 
 import java.awt.Color;
 import java.awt.Font;
@@ -27,6 +29,9 @@ public final class Manager implements IManager
 {
     //where gameplay occurs
     private Rectangle window;
+    
+    //object containing all the levels
+    private Levels levels;
     
     /**
      * Constructor for Manager, this is the point where we load any menu option configurations
@@ -48,7 +53,10 @@ public final class Manager implements IManager
     @Override
     public void reset(final Engine engine) throws Exception
     {
-        
+        if (levels == null)
+        {
+            levels = new Levels();
+        }
     }
     
     @Override
@@ -72,6 +80,12 @@ public final class Manager implements IManager
         if (window != null)
             window = null;
         
+        if (levels != null)
+        {
+            levels.dispose();
+            levels = null;
+        }
+        
         try
         {
             //recycle objects
@@ -91,7 +105,10 @@ public final class Manager implements IManager
     @Override
     public void update(final Engine engine) throws Exception
     {
-        
+        if (levels != null)
+        {
+            levels.update(engine);
+        }
     }
     
     /**
@@ -101,6 +118,9 @@ public final class Manager implements IManager
     @Override
     public void render(final Graphics graphics)
     {
-        
+        if (levels != null)
+        {
+            levels.render(graphics);
+        }
     }
 }

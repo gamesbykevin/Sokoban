@@ -18,18 +18,21 @@ public final class Floor extends LevelObject
         Type.FLOOR_GREEN1, Type.FLOOR_GREEN2};
     
     //dimensions of this level object
-    public static final int WIDTH = 64;
-    public static final int HEIGHT = 64;
+    private static final int WIDTH = 64;
+    private static final int HEIGHT = 64;
     
-    public Floor(final Random random)
+    public Floor(final Random random) throws Exception
     {
         //pick random floor type
         this(FLOORS[random.nextInt(FLOORS.length)]);
     }
     
-    public Floor(final Type type)
+    public Floor(final Type type) throws Exception
     {
         super(type);
+        
+        //setup animations
+        setup();
     }
     
     /**
@@ -91,6 +94,9 @@ public final class Floor extends LevelObject
         
         //add animation
         super.addAnimation(col * WIDTH, row * HEIGHT, WIDTH, HEIGHT);
+        
+        //default the animation for now
+        super.getSpriteSheet().setCurrent(DEFAULT_ANIMATION_KEY);
     }
     
     @Override

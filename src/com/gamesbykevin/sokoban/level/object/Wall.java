@@ -16,18 +16,21 @@ public final class Wall extends LevelObject
     };
     
     //dimensions of this level object
-    public static final int WIDTH = 64;
-    public static final int HEIGHT = 64;
+    private static final int WIDTH = 64;
+    private static final int HEIGHT = 64;
     
-    public Wall(final Random random)
+    public Wall(final Random random) throws Exception
     {
         //pick random wall type
         this(WALLS[random.nextInt(WALLS.length)]);
     }
     
-    public Wall(final Type type)
+    public Wall(final Type type) throws Exception
     {
         super(type);
+        
+        //setup animations
+        setup();
     }
     
     /**
@@ -74,6 +77,9 @@ public final class Wall extends LevelObject
             default:
                 throw new Exception("Level Object Type not found = " + getType());
         }
+        
+        //default the animation for now
+        super.getSpriteSheet().setCurrent(DEFAULT_ANIMATION_KEY);
     }
     
     @Override

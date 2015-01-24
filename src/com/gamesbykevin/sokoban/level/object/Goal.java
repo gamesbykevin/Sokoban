@@ -20,22 +20,25 @@ public final class Goal extends LevelObject
     };
     
     //dimensions of this level object
-    public static final int WIDTH = 32;
-    public static final int HEIGHT = 32;
+    private static final int WIDTH = 32;
+    private static final int HEIGHT = 32;
     
     //location on spritesheet where the goals start
     private static final int START_X = 0;
     private static final int START_Y = 384;
     
-    public Goal(final Random random)
+    public Goal(final Random random) throws Exception
     {
         //pick random wall type
         this(GOALS[random.nextInt(GOALS.length)]);
     }
     
-    public Goal(final Type type)
+    public Goal(final Type type) throws Exception
     {
         super(type);
+        
+        //setup animations
+        setup();
     }
     
     /**
@@ -89,6 +92,9 @@ public final class Goal extends LevelObject
         
         //add animation
         addAnimation(START_X + (WIDTH * col), START_Y + (HEIGHT * row), WIDTH, HEIGHT);
+        
+        //default the animation for now
+        super.getSpriteSheet().setCurrent(DEFAULT_ANIMATION_KEY);
     }
     
     @Override
