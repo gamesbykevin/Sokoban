@@ -74,6 +74,23 @@ public class Level extends Sprite implements Disposable, IElement
     }
     
     /**
+     * Check if there are mobile objects
+     * @return true if at least 1 object is not at its destination, false otherwise
+     */
+    public boolean hasMobileObjects()
+    {
+        for (int i = 0; i < levelObjects.size(); i++)
+        {
+            //if this object is not at the destinaton, it is mobile
+            if (!levelObjects.get(i).hasDestination())
+                return true;
+        }
+        
+        //all objects are at destination
+        return false;
+    }
+    
+    /**
      * Get the physical level object at the specified location.
      * @param col Column we want to look at
      * @param row Row we want to look at

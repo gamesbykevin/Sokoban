@@ -36,6 +36,9 @@ public final class Levels implements Disposable, IElement
     //the most recet line accessed while loading the levels
     private int recentLine = 0;
     
+    //do we need to assign a random level
+    private boolean assignRandom = false;
+    
     public Levels()
     {
         //create new empty list of levels
@@ -163,8 +166,8 @@ public final class Levels implements Disposable, IElement
     
     public boolean isLoading()
     {
-        //if the progress is not complete, we are still loading
-        return (!progress.isComplete());
+        //if the progress is not complete or we need to assign a random level, we are still loading
+        return (!progress.isComplete() || assignRandom);
     }
     
     /**
@@ -341,32 +344,61 @@ public final class Levels implements Disposable, IElement
         }
         
         //continue until we have completed our progress
-        if (isLoading())
+        if (!progress.isComplete())
         {
             //if the levels do not exist we will create them
             createLevels(engine.getResources().getGameText(Keys.Levels).getLines(), engine.getRandom());
             
             //if no longer loading set a random level for now
-            if (!isLoading())
+            if (progress.isComplete())
             {
-                //pick random level for now
-                this.index = engine.getRandom().nextInt(levels.size());
+                //ok to pick random level
+                assignRandom = true;
+            }
+        }
+        else
+        {
+            if (assignRandom)
+            {
+                //pick random level
+                setRandom(engine.getRandom());
                 
-                if (Shared.DEBUG)
-                    System.out.println("Level = " + index);
+                //reset level
+                getLevel().reset();
                 
                 //position level in center of window
                 positionLevel(engine.getManager().getWindow());
                 
                 //set the character's starting location
                 engine.getManager().getPlayer().setCharacterStart(getLevel().getStart());
+                
+                //turn flag off
+                assignRandom = false;
             }
+            else
+            {
+                //update the level
+                getLevel().update(engine);
+            }
+            
         }
-        else
-        {
-            //update the level
-            getLevel().update(engine);
-        }
+    }
+    
+    /**
+     * Set a random level
+     * @param random Object used to make random decisions
+     */
+    private void setRandom(final Random random)
+    {
+        this.index = random.nextInt(levels.size());
+    }
+    
+    /**
+     * Pick a random new level
+     */
+    public void assignNewLevel()
+    {
+        this.assignRandom = true;
     }
     
     @Override

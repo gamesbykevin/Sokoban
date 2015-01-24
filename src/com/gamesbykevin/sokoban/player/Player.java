@@ -6,6 +6,7 @@ import com.gamesbykevin.framework.resources.Disposable;
 
 import com.gamesbykevin.sokoban.engine.Engine;
 import com.gamesbykevin.sokoban.level.Level;
+import com.gamesbykevin.sokoban.level.Levels;
 import com.gamesbykevin.sokoban.level.object.Character;
 import com.gamesbykevin.sokoban.level.object.LevelObject;
 import com.gamesbykevin.sokoban.resources.GameImages.Keys;
@@ -29,6 +30,7 @@ public final class Player implements Disposable, IElement
     private static final int MOVE_NORTH = KeyEvent.VK_UP;
     private static final int MOVE_SOUTH = KeyEvent.VK_DOWN;
     private static final int LEVEL_RESET = KeyEvent.VK_R;
+    private static final int LEVEL_NEW = KeyEvent.VK_N;
     
     //the number of moves in the current level
     private int count = 0;
@@ -78,11 +80,7 @@ public final class Player implements Disposable, IElement
         this.character.setStart(start);
         
         //also set as current position
-        this.character.setCol(start);
-        this.character.setRow(start);
-        
-        //mark at destination as well
-        this.character.setDestination(start);
+        this.character.reset();
     }
     
     @Override
@@ -117,21 +115,24 @@ public final class Player implements Disposable, IElement
         //update character animation, etc....
         getCharacter().update(engine);
         
-        //if the character is at their destination they can be moved
-        if (getCharacter().hasDestination())
+        //if the character is at their destination and all other objects are, the character can be moved
+        if (getCharacter().hasDestination() && !level.hasMobileObjects())
         {
             //check if the human user moved the character
-            checkInput(engine.getKeyboard(), level);
+            checkInput(engine.getKeyboard(), engine.getManager().getLevels());
         }
     }
     
     /**
      * Check human input to change the board
      * @param keyboard Object containing human keyboard input
-     * @param level The current level
+     * @param levels Object containing all the levels
      */
-    private void checkInput(final Keyboard keyboard, final Level level)
+    private void checkInput(final Keyboard keyboard, final Levels levels)
     {
+        //get the current level
+        Level level = levels.getLevel();
+        
         //objects we will need to check to determine movement
         final LevelObject object1;
         final LevelObject object2;
@@ -140,10 +141,20 @@ public final class Player implements Disposable, IElement
         {
             //reset character
             getCharacter().reset();
-            getCharacter().setAnimation(Character.SOUTH);
             
             //reset level
             level.reset();
+            
+            //remove key pressed
+            keyboard.removeKeyPressed(LEVEL_RESET);
+        }
+        else if (keyboard.hasKeyPressed(LEVEL_NEW))
+        {
+            //set a new random level
+            levels.assignNewLevel();
+            
+            //remove key pressed
+            keyboard.removeKeyPressed(LEVEL_NEW);
         }
         else if (keyboard.hasKeyPressed(MOVE_WEST))
         {

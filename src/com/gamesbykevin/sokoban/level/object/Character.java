@@ -24,6 +24,16 @@ public final class Character extends LevelObject
         setup();
     }
     
+    @Override
+    public final void reset()
+    {
+        //call parent reset
+        super.reset();
+        
+        //default facing south
+        super.setAnimation(SOUTH);
+    }
+    
     /**
      * Setup the box animation
      */
