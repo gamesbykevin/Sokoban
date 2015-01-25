@@ -13,7 +13,7 @@ import java.awt.image.BufferedImage;
 public final class Shared 
 {
     //show UPS counter and other DEBUG info
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
     
     /**
      * These dimensions is the size of the game window the user will see.
