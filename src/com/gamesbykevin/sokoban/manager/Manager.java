@@ -52,20 +52,20 @@ public final class Manager implements IManager
         
         //set the game window where game play will occur
         setWindow(engine.getMain().getScreen());
-        
-        //do we hide the detail screen
-        //setEnableDetailScreen(Toggle.values()[engine.getMenu().getOptionSelectionIndex(CustomMenu.LayerKey.Options, CustomMenu.OptionKey.EnableDetail)] == Toggle.Off);
     }
     
     @Override
     public void reset(final Engine engine) throws Exception
     {
+        //create object that will contain our levels
         if (levels == null)
             levels = new Levels(engine.getMenu().getOptionSelectionIndex(LayerKey.Options, OptionKey.Difficulty));
         
+        //create player if not exists
         if (player == null)
             player = new Player();
         
+        //get background image if not already stored
         if (background == null)
             background = engine.getResources().getGameImage(GameImages.Keys.Background);
     }

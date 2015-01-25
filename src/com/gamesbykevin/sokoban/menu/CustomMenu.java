@@ -288,8 +288,8 @@ public final class CustomMenu extends Menu implements IElement
             //if confirming exit from the game, stop sound
             if (super.hasCurrent(LayerKey.ExitGameConfirmed))
             {
-                //recycle game related objects
-                engine.markReset();
+                //reset game upon exit
+                engine.reset();
                 
                 //go to specified layer
                 super.setLayer(LayerKey.MainTitle);
@@ -300,7 +300,7 @@ public final class CustomMenu extends Menu implements IElement
             {
                 //if we previously weren't in this layer reset the game
                 if (!optionsInGame)
-                    engine.markReset();
+                    engine.reset();
             }
         }
         else

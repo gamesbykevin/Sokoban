@@ -3,6 +3,8 @@ package com.gamesbykevin.sokoban.player;
 import com.gamesbykevin.framework.base.Cell;
 import com.gamesbykevin.framework.input.Keyboard;
 import com.gamesbykevin.framework.resources.Disposable;
+import com.gamesbykevin.framework.util.Timer;
+import com.gamesbykevin.framework.util.Timers;
 
 import com.gamesbykevin.sokoban.engine.Engine;
 import com.gamesbykevin.sokoban.level.Level;
@@ -11,13 +13,15 @@ import com.gamesbykevin.sokoban.level.object.Character;
 import com.gamesbykevin.sokoban.level.object.LevelObject;
 import com.gamesbykevin.sokoban.resources.GameImages.Keys;
 import com.gamesbykevin.sokoban.shared.IElement;
-import java.awt.Color;
+import com.gamesbykevin.sokoban.shared.Shared;
 
+import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
+import java.awt.Rectangle;
 
 /**
  * The player who can interact with the game
@@ -36,14 +40,35 @@ public final class Player implements Disposable, IElement
     private static final int LEVEL_RESET = KeyEvent.VK_R;
     private static final int LEVEL_NEW = KeyEvent.VK_N;
     
+    //display the notification message for this time
+    private static final long NOTIFICATION_DELAY = Timers.toNanoSeconds(5000L);
+    
+    //timer to show notification message
+    private Timer timer;
+    
     //the number of moves in the current level
     private int count = 0;
     
     //the image we render the total number of moves
     private BufferedImage countImage;
     
+    //image to be displayed to user for a few seconds
+    private BufferedImage notificationImage;
+    
+    //image to be dislayed when a level is solved
+    private BufferedImage victoryImage;
+    
     //location of countImage
-    private Point location;
+    private Point locationCount;
+    
+    //location of notificationImage
+    private Point locationNotification;
+    
+    //location of victory image
+    private Point locationVictory;
+    
+    //does the player have the level solved
+    private boolean victory = false;
     
     //image dimensions
     private static final int IMAGE_WIDTH = 35;
@@ -60,6 +85,9 @@ public final class Player implements Disposable, IElement
         this.character.setDimensions();
         this.character.setWidth(this.character.getWidth() /2);
         this.character.setHeight(this.character.getHeight() / 2);
+        
+        //create timer
+        this.timer = new Timer(NOTIFICATION_DELAY);
     }
     
     /**
@@ -89,6 +117,12 @@ public final class Player implements Disposable, IElement
     public void resetCount()
     {
         setCount(0);
+        
+        //reset notification display timer
+        this.timer.reset();
+        
+        //flag victory false
+        this.victory = false;
     }
     
     /**
@@ -134,10 +168,49 @@ public final class Player implements Disposable, IElement
             character = null;
         }
         
-        countImage = null;
-        location = null;
+        if (countImage != null)
+        {
+            countImage.flush();
+            countImage = null;
+        }
+        
+        if (notificationImage != null)
+        {
+            notificationImage.flush();
+            notificationImage = null;
+        }
+        
+        if (victoryImage != null)
+        {
+            victoryImage.flush();
+            victoryImage = null;
+        }
+        
+        locationCount = null;
+        locationNotification = null;
+        locationVictory = null;
     }
     
+    /**
+     * Draw notification image
+     */
+    private void renderNotificationImage()
+    {
+        if (notificationImage != null)
+        {
+            //get graphics object to write image
+            Graphics2D g2d = this.notificationImage.createGraphics();
+            g2d.setColor(Color.BLACK);
+            g2d.fillRect(0, 0, Shared.ORIGINAL_WIDTH, IMAGE_HEIGHT * 2);
+            g2d.setColor(Color.WHITE);
+            g2d.drawString("Press 'R' to reset the current level.", (OFFSET_X * 5), IMAGE_HEIGHT - OFFSET_Y);
+            g2d.drawString("Press 'N' to choose a random new level.", (OFFSET_X * 5), (IMAGE_HEIGHT * 2) - OFFSET_Y);
+        }
+    }
+    
+    /**
+     * Draw player moves count image
+     */
     private void renderCountImage()
     {
         if (countImage != null)
@@ -151,6 +224,70 @@ public final class Player implements Disposable, IElement
         }
     }
     
+    /**
+     * Draw victory image
+     */
+    private void renderVictoryImage()
+    {
+        if (victoryImage != null)
+        {
+            //get graphics object to write image
+            Graphics2D g2d = this.victoryImage.createGraphics();
+            g2d.setColor(Color.BLACK);
+            g2d.fillRect(0, 0, Shared.ORIGINAL_WIDTH, IMAGE_HEIGHT);
+            g2d.setColor(Color.WHITE);
+            g2d.drawString("Congratulations You Win!!", (OFFSET_X * 5), IMAGE_HEIGHT - OFFSET_Y);
+        }
+    }
+    
+    private void renderImages(final Rectangle screen)
+    {
+        if (this.countImage == null)
+        {
+            //create count image
+            this.countImage = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+            
+            //the place to draw our image
+            this.locationCount = new Point(
+                screen.x + screen.width - IMAGE_WIDTH - OFFSET_X,
+                screen.y + IMAGE_HEIGHT + OFFSET_Y
+            );
+            
+            //draw image
+            renderCountImage();
+        }
+        
+        if (this.victoryImage == null)
+        {
+            //create victory image
+            this.victoryImage = new BufferedImage(Shared.ORIGINAL_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+            
+            //the place to draw our victory image
+            this.locationVictory = new Point(
+                screen.x,
+                screen.y + (IMAGE_HEIGHT * 3) + OFFSET_Y
+            );
+            
+            //draw image
+            renderVictoryImage();
+        }
+        
+        if (this.notificationImage == null)
+        {
+            //create notification image
+            this.notificationImage = new BufferedImage(Shared.ORIGINAL_WIDTH, IMAGE_HEIGHT * 2, BufferedImage.TYPE_INT_ARGB);
+            
+            //the place to draw our notification image
+            this.locationNotification = new Point(
+                screen.x,
+                screen.y + (IMAGE_HEIGHT * 3) + OFFSET_Y
+            );
+            
+            //draw image
+            renderNotificationImage();
+        }
+    }
+    
     @Override
     public void update(final Engine engine) throws Exception
     {
@@ -158,27 +295,30 @@ public final class Player implements Disposable, IElement
         if (getCharacter() == null)
             return;
         
-        if (this.countImage == null)
+        //get the current level
+        Level level = engine.getManager().getLevels().getLevel();
+        
+        //if the level has been solved, flag victory message for display
+        if (level.hasCompleted() && !victory)
         {
-            //create count image
-            this.countImage = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+            //flag victory
+            victory = true;
             
-            //the place to draw our image
-            this.location = new Point(
-                engine.getManager().getWindow().x + engine.getManager().getWindow().width - IMAGE_WIDTH - OFFSET_X,
-                engine.getManager().getWindow().y + IMAGE_HEIGHT + OFFSET_Y
-            );
-            
-            //draw image
-            renderCountImage();
+            //reset timer so notification message will show
+            timer.reset();
         }
+        
+        //create, draw images as needed
+        renderImages(engine.getManager().getWindow());
+        
+        //update timer if not complete and we haven't solved level
+        if (!timer.hasTimePassed() && !victory)
+            timer.update(engine.getMain().getTime());
         
         if (getCharacter().getImage() == null)
             getCharacter().setImage(engine.getResources().getGameImage(Keys.SpriteSheet));
 
-        //get the current level
-        Level level = engine.getManager().getLevels().getLevel();
-
+        
         //set the height to half of the original
         getCharacter().setDimensions();
         getCharacter().setWidth(getCharacter().getWidth() / 2);
@@ -411,10 +551,20 @@ public final class Player implements Disposable, IElement
     @Override
     public void render(final Graphics graphics)
     {
+        //draw character
         if (getCharacter() != null)
             getCharacter().render(graphics, getCharacter().getImage());
         
+        //draw player moves count
         if (countImage != null)
-            graphics.drawImage(countImage, location.x, location.y, null);
+            graphics.drawImage(countImage, locationCount.x, locationCount.y, null);
+        
+        //draw notification message
+        if (notificationImage != null && !timer.hasTimePassed())
+            graphics.drawImage(notificationImage, locationNotification.x, locationNotification.y, null);
+        
+        //draw victory message
+        if (victoryImage != null && victory)
+            graphics.drawImage(victoryImage, locationVictory.x, locationVictory.y, null);
     }
 }

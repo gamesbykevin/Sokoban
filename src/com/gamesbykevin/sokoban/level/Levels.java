@@ -85,6 +85,12 @@ public final class Levels implements Disposable, IElement
             levels.clear();
             levels = null;
         }
+        
+        if (progress != null)
+        {
+            progress.dispose();
+            progress = null;
+        }
     }
     
     /**
