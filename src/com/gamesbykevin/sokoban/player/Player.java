@@ -201,10 +201,11 @@ public final class Player implements Disposable, IElement
             //get graphics object to write image
             Graphics2D g2d = this.notificationImage.createGraphics();
             g2d.setColor(Color.BLACK);
-            g2d.fillRect(0, 0, Shared.ORIGINAL_WIDTH, IMAGE_HEIGHT * 2);
+            g2d.fillRect(0, 0, Shared.ORIGINAL_WIDTH, IMAGE_HEIGHT * 3);
             g2d.setColor(Color.WHITE);
             g2d.drawString("Press 'R' to reset the current level.", (OFFSET_X * 5), IMAGE_HEIGHT - OFFSET_Y);
             g2d.drawString("Press 'N' to choose a random new level.", (OFFSET_X * 5), (IMAGE_HEIGHT * 2) - OFFSET_Y);
+            g2d.drawString("Press 'Esc' to access the menu.", (OFFSET_X * 5), (IMAGE_HEIGHT * 3) - OFFSET_Y);
         }
     }
     
@@ -275,7 +276,7 @@ public final class Player implements Disposable, IElement
         if (this.notificationImage == null)
         {
             //create notification image
-            this.notificationImage = new BufferedImage(Shared.ORIGINAL_WIDTH, IMAGE_HEIGHT * 2, BufferedImage.TYPE_INT_ARGB);
+            this.notificationImage = new BufferedImage(Shared.ORIGINAL_WIDTH, IMAGE_HEIGHT * 3, BufferedImage.TYPE_INT_ARGB);
             
             //the place to draw our notification image
             this.locationNotification = new Point(
