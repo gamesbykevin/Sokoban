@@ -68,6 +68,9 @@ public final class Manager implements IManager
         //get background image if not already stored
         if (background == null)
             background = engine.getResources().getGameImage(GameImages.Keys.Background);
+        
+        //play music
+        engine.getResources().playGameAudio(GameAudio.Keys.Music, true);
     }
     
     /**

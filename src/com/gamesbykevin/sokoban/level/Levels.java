@@ -5,6 +5,7 @@ import com.gamesbykevin.framework.resources.Progress;
 
 import com.gamesbykevin.sokoban.engine.Engine;
 import com.gamesbykevin.sokoban.level.object.*;
+import com.gamesbykevin.sokoban.resources.GameAudio;
 import com.gamesbykevin.sokoban.resources.GameText.Keys;
 import com.gamesbykevin.sokoban.shared.IElement;
 
@@ -413,7 +414,6 @@ public final class Levels implements Disposable, IElement
                     getLevel().update(engine);
                 }
             }
-            
         }
     }
     

@@ -7,6 +7,7 @@ import com.gamesbykevin.framework.resources.Disposable;
 import com.gamesbykevin.sokoban.engine.Engine;
 import com.gamesbykevin.sokoban.level.object.Box;
 import com.gamesbykevin.sokoban.level.object.LevelObject;
+import com.gamesbykevin.sokoban.resources.GameAudio;
 import com.gamesbykevin.sokoban.resources.GameImages.Keys;
 import com.gamesbykevin.sokoban.shared.IElement;
 
@@ -378,6 +379,9 @@ public class Level extends Sprite implements Disposable, IElement
         if (super.getImage() == null)
             super.setImage(engine.getResources().getGameImage(Keys.SpriteSheet));
         
+        //did we just place a box on a goal
+        boolean result = false;
+        
         //update the level objects
         for (int i = 0; i < levelObjects.size(); i++)
         {
@@ -388,19 +392,28 @@ public class Level extends Sprite implements Disposable, IElement
             
             //if this object is a box, check for goal match
             if (object.isBox())
-                checkBoxAnimation(object);
+            {
+                //if true, then a box was just placed on a goal
+                if (checkBoxAnimation(object))
+                    result = true;
+            }
             
             //set coordinates
             object.setX(getStartX(object) + (Level.DEFAULT_DIMENSION / 2) - (object.getWidth() / 2));
             object.setY(getStartY(object) + (Level.DEFAULT_DIMENSION / 2) - (object.getHeight() / 2));
         }
+        
+        //if we just placed a box on the goal, play sound effect
+        if (result)
+            engine.getResources().playGameAudio(GameAudio.Keys.Place);
     }
     
     /**
      * Check the box, to set the correct animation.<br>
      * @param object The object representing the box
+     * @return true if a box was placed onto a goal for the first time, false time
      */
-    private void checkBoxAnimation(final LevelObject object)
+    private boolean checkBoxAnimation(final LevelObject object)
     {
         //is there a goal that has the same location as the box
         boolean match = false;
@@ -424,7 +437,34 @@ public class Level extends Sprite implements Disposable, IElement
         }
         
         //set box animation accordingly
-        object.setAnimation((match) ? Box.ON_GOAL : Box.NORMAL);
+        if (match)
+        {
+            //if the current animation is not on a goal and now is, this is the first time
+            if (object.getSpriteSheet().getCurrent() != Box.ON_GOAL)
+            {
+                //set on box animation
+                object.setAnimation(Box.ON_GOAL);
+                
+                //just placed return true
+                return true;
+            }
+            else
+            {
+                //set on box animation
+                object.setAnimation(Box.ON_GOAL);
+                
+                //this was already placed
+                return false;
+            }
+        }
+        else
+        {
+            //set normal animation
+            object.setAnimation(Box.NORMAL);
+            
+            //no match, this is not placed on a goal
+            return false;
+        }
     }
     
     @Override

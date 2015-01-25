@@ -11,6 +11,7 @@ import com.gamesbykevin.sokoban.level.Level;
 import com.gamesbykevin.sokoban.level.Levels;
 import com.gamesbykevin.sokoban.level.object.Character;
 import com.gamesbykevin.sokoban.level.object.LevelObject;
+import com.gamesbykevin.sokoban.resources.GameAudio;
 import com.gamesbykevin.sokoban.resources.GameImages.Keys;
 import com.gamesbykevin.sokoban.shared.IElement;
 import com.gamesbykevin.sokoban.shared.Shared;
@@ -307,6 +308,9 @@ public final class Player implements Disposable, IElement
             
             //reset timer so notification message will show
             timer.reset();
+            
+            //play victory sound effect
+            engine.getResources().playGameAudio(GameAudio.Keys.Win);
         }
         
         //create, draw images as needed
@@ -319,7 +323,6 @@ public final class Player implements Disposable, IElement
         if (getCharacter().getImage() == null)
             getCharacter().setImage(engine.getResources().getGameImage(Keys.SpriteSheet));
 
-        
         //set the height to half of the original
         getCharacter().setDimensions();
         getCharacter().setWidth(getCharacter().getWidth() / 2);
@@ -334,10 +337,7 @@ public final class Player implements Disposable, IElement
         
         //if the character is at their destination and all other objects are, the character can be moved
         if (getCharacter().hasDestination() && !level.hasMobileObjects())
-        {
-            //check if the human user moved the character
             checkInput(engine.getKeyboard(), engine.getManager().getLevels());
-        }
     }
     
     /**
