@@ -57,6 +57,13 @@
         <title>Options</title>
         <backgroundMusicLocation></backgroundMusicLocation>
         <optionSoundLocation>resources/audio/menu/sound/selection.wav</optionSoundLocation>
+        <options name="Difficulty: " id="Difficulty:">
+            <option>Very Easy</option>
+            <option>Easy</option>
+            <option>Medium</option>
+            <option>Hard</option>
+            <option>Any</option>
+        </options>
         <options name="All Sound: " id="Sound">
             <option>On</option>
             <option>Off</option>
@@ -81,12 +88,19 @@
         <duration></duration>
         <image>resources/images/menu/instructions1.png</image>
     </layer>
-    <layer id="Instructions2" next="MainTitle">
+    <layer id="Instructions2" next="Instructions3">
         <transition>NONE</transition>
         <force>false</force>
         <pause>true</pause>
         <duration></duration>
         <image>resources/images/menu/instructions2.png</image>
+    </layer>
+    <layer id="Instructions3" next="MainTitle">
+        <transition>NONE</transition>
+        <force>false</force>
+        <pause>true</pause>
+        <duration></duration>
+        <image>resources/images/menu/instructions3.png</image>
     </layer>
     <layer id="GameStart">
         <!-- THIS LAYER IS INTENTIONALLY LEFT BLANK, THIS IS WHERE MAIN GAMEPLAY WILL START -->

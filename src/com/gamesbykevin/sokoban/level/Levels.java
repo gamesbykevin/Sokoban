@@ -24,10 +24,11 @@ public final class Levels implements Disposable, IElement
     private List<Level> levels;
     
     //different levels of difficulty
-    public static final int DIFFICULTY_EASY = 0;
-    public static final int DIFFICULTY_MEDIUM = 1;
-    public static final int DIFFICULTY_HARD = 2;
-    public static final int DIFFICULTY_ANY = 3;
+    public static final int DIFFICULTY_VERY_EASY = 0;
+    public static final int DIFFICULTY_EASY = 1;
+    public static final int DIFFICULTY_MEDIUM = 2;
+    public static final int DIFFICULTY_HARD = 3;
+    public static final int DIFFICULTY_ANY = 4;
     
     //the difficulty setting
     private final int difficulty;
@@ -88,35 +89,40 @@ public final class Levels implements Disposable, IElement
     
     /**
      * Add level to the list if it falls within the difficulty setting.<br>
-     * Easy - Less than 4 boxes<br>
-     * Medium - Between 4 and 6 boxes<br>
+     * Very Easy Less than 3 boxes<br>
+     * Easy - Between 3 and 4 boxes<br>
+     * Medium - Between 5 and 6 boxes<br>
      * Hard - More than 6 boxes<br>
      * Any - Any number of boxes<br>
      * @param level The level we want to add
+     * @throws Exception if difficulty is not setup here
      */
-    private void add(final Level level)
+    private void add(final Level level) throws Exception
     {
         //does the level meet the difficulty setting
         boolean pass = false;
         
         switch (difficulty)
         {
+            case DIFFICULTY_VERY_EASY:
+                if (level.getBoxCount() < 3)
+                    pass = true;
+                    
+                break;
+            
             case DIFFICULTY_EASY:
-                
-                if (level.getBoxCount() < 4)
+                if (level.getBoxCount() >= 3 && level.getBoxCount() <= 4)
                     pass = true;
                 
                 break;
                 
             case DIFFICULTY_MEDIUM:
-                
-                if (level.getBoxCount() >= 4 && level.getBoxCount() <= 6)
+                if (level.getBoxCount() >= 5 && level.getBoxCount() <= 6)
                     pass = true;
                 
                 break;
                 
             case DIFFICULTY_HARD:
-                
                 if (level.getBoxCount() > 6)
                     pass = true;
                 
@@ -125,6 +131,9 @@ public final class Levels implements Disposable, IElement
             case DIFFICULTY_ANY:
                 pass = true;
                 break;
+                
+            default:
+                throw new Exception("Difficulty was not found here = " + difficulty);
         }
         
         //if pass add to list

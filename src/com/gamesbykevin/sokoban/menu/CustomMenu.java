@@ -27,11 +27,12 @@ public final class CustomMenu extends Menu implements IElement
     private Object previousLayerKey;
     
     /**
-     * identify each option we want to access, spelling should match the options id=? in the .xml file
+     * Identify each option we want to access
+     * Spelling should match the options id=? in the .xml file
      */
     public enum OptionKey 
     {
-        Sound, FullScreen, 
+        Sound, FullScreen, Difficulty
         
     }
     

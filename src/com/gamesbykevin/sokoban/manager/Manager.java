@@ -61,7 +61,7 @@ public final class Manager implements IManager
     public void reset(final Engine engine) throws Exception
     {
         if (levels == null)
-            levels = new Levels(Levels.DIFFICULTY_EASY);
+            levels = new Levels(engine.getMenu().getOptionSelectionIndex(LayerKey.Options, OptionKey.Difficulty));
         
         if (player == null)
             player = new Player();
