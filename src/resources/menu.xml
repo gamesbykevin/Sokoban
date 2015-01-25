@@ -62,7 +62,7 @@
             <option>Easy</option>
             <option>Medium</option>
             <option>Hard</option>
-            <option>Any</option>
+            <option>Hardest</option>
         </options>
         <options name="All Sound: " id="Sound">
             <option>On</option>

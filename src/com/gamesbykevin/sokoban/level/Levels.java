@@ -28,7 +28,7 @@ public final class Levels implements Disposable, IElement
     public static final int DIFFICULTY_EASY = 1;
     public static final int DIFFICULTY_MEDIUM = 2;
     public static final int DIFFICULTY_HARD = 3;
-    public static final int DIFFICULTY_ANY = 4;
+    public static final int DIFFICULTY_HARDEST = 4;
     
     //the difficulty setting
     private final int difficulty;
@@ -92,8 +92,8 @@ public final class Levels implements Disposable, IElement
      * Very Easy Less than 3 boxes<br>
      * Easy - Between 3 and 4 boxes<br>
      * Medium - Between 5 and 6 boxes<br>
-     * Hard - More than 6 boxes<br>
-     * Any - Any number of boxes<br>
+     * Hard - Between 7 and 8 boxes<br>
+     * Hardest - More than 8 boxes<br>
      * @param level The level we want to add
      * @throws Exception if difficulty is not setup here
      */
@@ -102,34 +102,34 @@ public final class Levels implements Disposable, IElement
         //does the level meet the difficulty setting
         boolean pass = false;
         
+        //get the box count
+        final int boxCount = level.getBoxCount();
+        
         switch (difficulty)
         {
             case DIFFICULTY_VERY_EASY:
-                if (level.getBoxCount() < 3)
+                if (boxCount < 3)
                     pass = true;
-                    
                 break;
             
             case DIFFICULTY_EASY:
-                if (level.getBoxCount() >= 3 && level.getBoxCount() <= 4)
+                if (boxCount >= 3 && boxCount <= 4)
                     pass = true;
-                
                 break;
                 
             case DIFFICULTY_MEDIUM:
-                if (level.getBoxCount() >= 5 && level.getBoxCount() <= 6)
+                if (boxCount >= 5 && boxCount <= 6)
                     pass = true;
-                
                 break;
                 
             case DIFFICULTY_HARD:
-                if (level.getBoxCount() > 6)
+                if (boxCount >= 7 && boxCount <= 8)
                     pass = true;
-                
                 break;
                 
-            case DIFFICULTY_ANY:
-                pass = true;
+            case DIFFICULTY_HARDEST:
+                if (boxCount > 8)
+                    pass = true;
                 break;
                 
             default:
