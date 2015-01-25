@@ -16,7 +16,7 @@ public final class GameImages extends ImageManager
      */
     public enum Keys
     {
-        SpriteSheet
+        SpriteSheet, Background
     }
     
     public GameImages() throws Exception

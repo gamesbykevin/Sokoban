@@ -1,10 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.gamesbykevin.sokoban.level.object;
 
 import com.gamesbykevin.sokoban.engine.Engine;
+
 import java.util.Random;
 
 /**

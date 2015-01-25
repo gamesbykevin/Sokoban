@@ -37,6 +37,9 @@ public final class Manager implements IManager
     //the object representing the player in play
     private Player player;
     
+    //background image
+    private Image background;
+    
     /**
      * Constructor for Manager, this is the point where we load any menu option configurations
      * @param engine Engine for our game that contains all objects needed
@@ -58,14 +61,13 @@ public final class Manager implements IManager
     public void reset(final Engine engine) throws Exception
     {
         if (levels == null)
-        {
-            levels = new Levels();
-        }
+            levels = new Levels(Levels.DIFFICULTY_EASY);
         
         if (player == null)
-        {
             player = new Player();
-        }
+        
+        if (background == null)
+            background = engine.getResources().getGameImage(GameImages.Keys.Background);
     }
     
     /**
@@ -110,6 +112,12 @@ public final class Manager implements IManager
             levels = null;
         }
         
+        if (player != null)
+        {
+            player.dispose();
+            player = null;
+        }
+        
         try
         {
             //recycle objects
@@ -134,7 +142,7 @@ public final class Manager implements IManager
             //update the levels
             getLevels().update(engine);
             
-            //if we are done loading the levels update the player
+            //if we are done loading the levels
             if (!getLevels().isLoading())
             {
                 if (getPlayer() != null)
@@ -151,6 +159,9 @@ public final class Manager implements IManager
     @Override
     public void render(final Graphics graphics)
     {
+        if (background != null)
+            graphics.drawImage(background, 0, 0, null);
+        
         if (getLevels() != null)
         {
             getLevels().render(graphics);

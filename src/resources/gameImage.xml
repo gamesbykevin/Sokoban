@@ -4,4 +4,5 @@
     <image id="Cursor">resources/images/game/cursor.gif</image>
     -->
     <image id="SpriteSheet">resources/images/game/sprites.png</image>
+    <image id="Background">resources/images/game/background.jpg</image>
 </images>

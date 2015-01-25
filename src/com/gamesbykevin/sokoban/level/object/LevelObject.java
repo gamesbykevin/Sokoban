@@ -34,7 +34,7 @@ public abstract class LevelObject extends Sprite implements Disposable
     private final Type type;
     
     //default animation time delay between frames
-    protected static final long DEFAULT_DELAY = Timers.toNanoSeconds(250L);
+    protected static final long DEFAULT_DELAY = Timers.toNanoSeconds(125L);
     
     //the default key for animations
     protected static final String DEFAULT_ANIMATION_KEY = "DEFAULT";
@@ -147,6 +147,9 @@ public abstract class LevelObject extends Sprite implements Disposable
     public void dispose()
     {
         super.dispose();
+        
+        start = null;
+        destination = null;
     }
     
     public boolean isWall()
@@ -296,6 +299,16 @@ public abstract class LevelObject extends Sprite implements Disposable
     public void setAnimation(final String key)
     {
         super.getSpriteSheet().setCurrent(key);
+    }
+    
+    /**
+     * Is this the current animation
+     * @param key The unique key of the animation we want to check
+     * @return true if the current animation is the parameter specified, false otherwise
+     */
+    public boolean hasAnimation(final String key)
+    {
+        return (super.getSpriteSheet().getCurrent() == key);
     }
     
     public Type getType()

@@ -1,6 +1,5 @@
 package com.gamesbykevin.sokoban.level.object;
 
-import com.gamesbykevin.framework.base.Cell;
 import com.gamesbykevin.sokoban.engine.Engine;
 
 import java.util.Random;

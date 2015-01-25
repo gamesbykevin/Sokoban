@@ -11,9 +11,13 @@ import com.gamesbykevin.sokoban.level.object.Character;
 import com.gamesbykevin.sokoban.level.object.LevelObject;
 import com.gamesbykevin.sokoban.resources.GameImages.Keys;
 import com.gamesbykevin.sokoban.shared.IElement;
+import java.awt.Color;
 
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 
 /**
  * The player who can interact with the game
@@ -35,6 +39,20 @@ public final class Player implements Disposable, IElement
     //the number of moves in the current level
     private int count = 0;
     
+    //the image we render the total number of moves
+    private BufferedImage countImage;
+    
+    //location of countImage
+    private Point location;
+    
+    //image dimensions
+    private static final int IMAGE_WIDTH = 35;
+    private static final int IMAGE_HEIGHT = 15;
+    
+    //the pixel offset to draw the stat image(s)
+    private static final int OFFSET_X = 3;
+    private static final int OFFSET_Y = 3;
+    
     public Player() throws Exception
     {
         //create the character
@@ -45,11 +63,32 @@ public final class Player implements Disposable, IElement
     }
     
     /**
+     * Set the number of moves performed by the player
+     * @param count The total number of moves made
+     */
+    private void setCount(final int count)
+    {
+        this.count = count;
+        
+        //draw image
+        renderCountImage();
+    }
+    
+    /**
      * Increase the number of moves
      */
     public void increaseCount()
     {
-        this.count++;
+        //increase count
+        setCount(getCount() + 1);
+    }
+    
+    /**
+     * Set the number of moves to 0
+     */
+    public void resetCount()
+    {
+        setCount(0);
     }
     
     /**
@@ -71,7 +110,7 @@ public final class Player implements Disposable, IElement
     }
     
     /**
-     * Set the character's starting location
+     * Set the character's starting location, this is performed when starting a level
      * @param start The object containing column, row
      */
     public void setCharacterStart(final Cell start)
@@ -81,13 +120,35 @@ public final class Player implements Disposable, IElement
         
         //also set as current position
         this.character.reset();
+        
+        //reset the counter as well
+        this.resetCount();
     }
     
     @Override
     public void dispose()
     {
-        character.dispose();
-        character = null;
+        if (character != null)
+        {
+            character.dispose();
+            character = null;
+        }
+        
+        countImage = null;
+        location = null;
+    }
+    
+    private void renderCountImage()
+    {
+        if (countImage != null)
+        {
+            //get graphics object to write image
+            Graphics2D g2d = this.countImage.createGraphics();
+            g2d.setColor(Color.BLACK);
+            g2d.fillRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+            g2d.setColor(Color.WHITE);
+            g2d.drawString("" + getCount(), OFFSET_X, IMAGE_HEIGHT - OFFSET_Y);
+        }
     }
     
     @Override
@@ -96,6 +157,21 @@ public final class Player implements Disposable, IElement
         //don't continue if character does not exist
         if (getCharacter() == null)
             return;
+        
+        if (this.countImage == null)
+        {
+            //create count image
+            this.countImage = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+            
+            //the place to draw our image
+            this.location = new Point(
+                engine.getManager().getWindow().x + engine.getManager().getWindow().width - IMAGE_WIDTH - OFFSET_X,
+                engine.getManager().getWindow().y + IMAGE_HEIGHT + OFFSET_Y
+            );
+            
+            //draw image
+            renderCountImage();
+        }
         
         if (getCharacter().getImage() == null)
             getCharacter().setImage(engine.getResources().getGameImage(Keys.SpriteSheet));
@@ -111,7 +187,7 @@ public final class Player implements Disposable, IElement
         //set coordinates based on col, row location
         getCharacter().setX(level.getStartX(getCharacter()) + (Level.DEFAULT_DIMENSION / 2) - (getCharacter().getWidth() / 2));
         getCharacter().setY(level.getStartY(getCharacter()) + (Level.DEFAULT_DIMENSION / 2) - (getCharacter().getHeight() / 2));
-        
+
         //update character animation, etc....
         getCharacter().update(engine);
         
@@ -133,11 +209,14 @@ public final class Player implements Disposable, IElement
         //get the current level
         Level level = levels.getLevel();
         
+        //has the level been completed
+        final boolean completed = level.hasCompleted();
+        
         //objects we will need to check to determine movement
         final LevelObject object1;
         final LevelObject object2;
 
-        if (keyboard.hasKeyPressed(LEVEL_RESET))
+        if (keyboard.hasKeyReleased(LEVEL_RESET) && !completed)
         {
             //reset character
             getCharacter().reset();
@@ -145,18 +224,21 @@ public final class Player implements Disposable, IElement
             //reset level
             level.reset();
             
+            //reset moves count
+            this.resetCount();
+            
             //remove key pressed
-            keyboard.removeKeyPressed(LEVEL_RESET);
+            keyboard.removeKeyReleased(LEVEL_RESET);
         }
-        else if (keyboard.hasKeyPressed(LEVEL_NEW))
+        else if (keyboard.hasKeyReleased(LEVEL_NEW))
         {
             //set a new random level
             levels.assignNewLevel();
             
             //remove key pressed
-            keyboard.removeKeyPressed(LEVEL_NEW);
+            keyboard.removeKeyReleased(LEVEL_NEW);
         }
-        else if (keyboard.hasKeyPressed(MOVE_WEST))
+        else if (keyboard.hasKeyPressed(MOVE_WEST) && !completed)
         {
             object1 = level.getPhysicalLevelObject((int)getCharacter().getCol() - 1, (int)getCharacter().getRow());
 
@@ -198,7 +280,7 @@ public final class Player implements Disposable, IElement
             //remove key pressed
             keyboard.removeKeyPressed(MOVE_WEST);
         }
-        else if (keyboard.hasKeyPressed(MOVE_EAST))
+        else if (keyboard.hasKeyPressed(MOVE_EAST) && !completed)
         {
             object1 = level.getPhysicalLevelObject((int)getCharacter().getCol() + 1, (int)getCharacter().getRow());
 
@@ -240,7 +322,7 @@ public final class Player implements Disposable, IElement
             //remove key pressed
             keyboard.removeKeyPressed(MOVE_EAST);
         }
-        else if (keyboard.hasKeyPressed(MOVE_NORTH))
+        else if (keyboard.hasKeyPressed(MOVE_NORTH) && !completed)
         {
             object1 = level.getPhysicalLevelObject((int)getCharacter().getCol(), (int)getCharacter().getRow() - 1);
 
@@ -282,7 +364,7 @@ public final class Player implements Disposable, IElement
             //remove key pressed
             keyboard.removeKeyPressed(MOVE_NORTH);
         }
-        else if (keyboard.hasKeyPressed(MOVE_SOUTH))
+        else if (keyboard.hasKeyPressed(MOVE_SOUTH) && !completed)
         {
             object1 = level.getPhysicalLevelObject((int)getCharacter().getCol(), (int)getCharacter().getRow() + 1);
 
@@ -330,8 +412,9 @@ public final class Player implements Disposable, IElement
     public void render(final Graphics graphics)
     {
         if (getCharacter() != null)
-        {
             getCharacter().render(graphics, getCharacter().getImage());
-        }
+        
+        if (countImage != null)
+            graphics.drawImage(countImage, location.x, location.y, null);
     }
 }

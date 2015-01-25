@@ -7,7 +7,6 @@ import com.gamesbykevin.sokoban.engine.Engine;
 import com.gamesbykevin.sokoban.level.object.*;
 import com.gamesbykevin.sokoban.resources.GameText.Keys;
 import com.gamesbykevin.sokoban.shared.IElement;
-import com.gamesbykevin.sokoban.shared.Shared;
 
 import java.awt.Graphics;
 import java.awt.Rectangle;
@@ -24,6 +23,15 @@ public final class Levels implements Disposable, IElement
     //the list containing the levels
     private List<Level> levels;
     
+    //different levels of difficulty
+    public static final int DIFFICULTY_EASY = 0;
+    public static final int DIFFICULTY_MEDIUM = 1;
+    public static final int DIFFICULTY_HARD = 2;
+    public static final int DIFFICULTY_ANY = 3;
+    
+    //the difficulty setting
+    private final int difficulty;
+    
     //the index of the current level
     private int index = 0;
     
@@ -39,9 +47,17 @@ public final class Levels implements Disposable, IElement
     //do we need to assign a random level
     private boolean assignRandom = false;
     
-    public Levels()
+    /**
+     * How many levels can be created per update
+     */
+    private static final int LEVELS_CREATED_PER_UPDATE = 30;
+    
+    public Levels(final int difficulty)
     {
-        //create new empty list of levels
+        //set the difficulty
+        this.difficulty = difficulty;
+        
+        //create new list of levels of each difficulty
         this.levels = new ArrayList<>();
     }
     
@@ -71,12 +87,49 @@ public final class Levels implements Disposable, IElement
     }
     
     /**
-     * Add level to the list
+     * Add level to the list if it falls within the difficulty setting.<br>
+     * Easy - Less than 4 boxes<br>
+     * Medium - Between 4 and 6 boxes<br>
+     * Hard - More than 6 boxes<br>
+     * Any - Any number of boxes<br>
      * @param level The level we want to add
      */
     private void add(final Level level)
     {
-        this.levels.add(level);
+        //does the level meet the difficulty setting
+        boolean pass = false;
+        
+        switch (difficulty)
+        {
+            case DIFFICULTY_EASY:
+                
+                if (level.getBoxCount() < 4)
+                    pass = true;
+                
+                break;
+                
+            case DIFFICULTY_MEDIUM:
+                
+                if (level.getBoxCount() >= 4 && level.getBoxCount() <= 6)
+                    pass = true;
+                
+                break;
+                
+            case DIFFICULTY_HARD:
+                
+                if (level.getBoxCount() > 6)
+                    pass = true;
+                
+                break;
+                
+            case DIFFICULTY_ANY:
+                pass = true;
+                break;
+        }
+        
+        //if pass add to list
+        if (pass)
+            levels.add(level);
     }
     
     /**
@@ -97,6 +150,9 @@ public final class Levels implements Disposable, IElement
         
         //line where the current level starts
         int start = 0;
+        
+        //count the number of levels created
+        int levelsCreated = 0;
         
         //check every line
         for (int i = recentLine; i < lines.size(); i++)
@@ -150,13 +206,22 @@ public final class Levels implements Disposable, IElement
                 {
                     //create the level
                     createLevel(start, i - 1, maxCols, lines, random);
+                    
+                    //track the number of levels created
+                    levelsCreated++;
                 }
-
+                
+                //reset variables for next level
+                maxCols = 0;
+                began = false;
+                ended = false;
+                    
                 //store recent line, for next check
                 recentLine = i;
                 
-                //exit loop so we can update progress
-                break;
+                //if we reached the max per update, exit loop so we can display progress
+                if (levelsCreated >= LEVELS_CREATED_PER_UPDATE)
+                    break;
             }
             
             //update progress count
@@ -210,39 +275,29 @@ public final class Levels implements Disposable, IElement
             //check every character in this line
             for (int col = 0; col < maxCols; col++)
             {
-                if (col >= line.length())
-                {
-                    //if we past the current line length, this will be a floor
-                    addObject(new Floor(floorType), col, row, level);
-                }
-                else
+                if (col < line.length())
                 {
                     switch (line.substring(col, col + 1))
                     {
                         case Level.KEY_WALL:
-                            addObject(new Wall(wallType), col, row, level);
+                            level.add(new Wall(wallType), col, row);
                             break;
 
                         case Level.KEY_BOX:
-                            addObject(new Box(boxType), col, row, level);
+                            level.add(new Box(boxType), col, row);
                             break;
 
                         case Level.KEY_BOX_ON_GOAL:
-                            //add goal
-                            addObject(new Goal(goalType), col, row, level);
-                            
-                            //then add box on top with the appropriate animation
-                            LevelObject object = new Box(boxType);
-                            object.setAnimation(Box.ON_GOAL);
-                            addObject(object, col, row, level);
+                            level.add(new Goal(goalType), col, row);
+                            level.add(new Box(boxType), col, row);
                             break;
 
                         case Level.KEY_GOAL:
-                            addObject(new Goal(goalType), col, row, level);
+                            level.add(new Goal(goalType), col, row);
                             break;
                             
                         case Level.KEY_PLAYER_ON_GOAL:
-                            addObject(new Goal(goalType), col, row, level);
+                            level.add(new Goal(goalType), col, row);
                             
                             //set start location for character
                             level.setStart(col, row);
@@ -276,47 +331,6 @@ public final class Levels implements Disposable, IElement
         
         //add level to list
         add(level);
-    }
-    
-    /**
-     * Add level object to the level
-     * @param object Object we want to add
-     * @param col Column location
-     * @param row Row location
-     * @param level The level we want to add the level object to
-     */
-    private void addObject(final LevelObject object, final int col, final int row, final Level level)
-    {
-        //set (col, row) location
-        object.setCol(col);
-        object.setRow(row);
-        
-        //assign the starting location as well
-        object.setStart(col, row);
-        
-        //assign the destination
-        object.setDestination(col, row);
-
-        //the goal is half the size of the default dimensions
-        if (object.isGoal())
-        {
-            //set the dimensions of the object
-            object.setWidth(Level.DEFAULT_DIMENSION / 2);
-            object.setHeight(Level.DEFAULT_DIMENSION / 2);
-        }
-        else
-        {
-            //set the dimensions of the object
-            object.setWidth(Level.DEFAULT_DIMENSION);
-            object.setHeight(Level.DEFAULT_DIMENSION);
-        }
-
-        //set coordinates
-        object.setX(level.getStartX(object) + (Level.DEFAULT_DIMENSION / 2) - (object.getWidth() / 2));
-        object.setY(level.getStartX(object) + (Level.DEFAULT_DIMENSION / 2) - (object.getHeight() / 2));
-
-        //add object to level
-        level.add(object);
     }
     
     private void positionLevel(final Rectangle screen)
@@ -377,8 +391,12 @@ public final class Levels implements Disposable, IElement
             }
             else
             {
-                //update the level
-                getLevel().update(engine);
+                //make sure the level is not complete
+                if (!getLevel().hasCompleted())
+                {
+                    //update the level
+                    getLevel().update(engine);
+                }
             }
             
         }

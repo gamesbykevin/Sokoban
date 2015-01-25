@@ -90,6 +90,50 @@ public class Level extends Sprite implements Disposable, IElement
         return false;
     }
     
+    private boolean hasPhysicalLevelObjectNorth(final int col, final int startRow)
+    {
+        for (int row = startRow; row >= 0; row--)
+        {
+            if (getPhysicalLevelObject(col, row) != null)
+                return true;
+        }
+        
+        return false;
+    }
+    
+    private boolean hasPhysicalLevelObjectSouth(final int col, final int startRow)
+    {
+        for (int row = startRow; row < getRows(); row++)
+        {
+            if (getPhysicalLevelObject(col, row) != null)
+                return true;
+        }
+        
+        return false;
+    }
+    
+    private boolean hasPhysicalLevelObjectEast(final int startCol, final int row)
+    {
+        for (int col = startCol; col < getColumns(); col++)
+        {
+            if (getPhysicalLevelObject(col, row) != null)
+                return true;
+        }
+        
+        return false;
+    }
+    
+    private boolean hasPhysicalLevelObjectWest(final int startCol, final int row)
+    {
+        for (int col = startCol; col >= 0; col--)
+        {
+            if (getPhysicalLevelObject(col, row) != null)
+                return true;
+        }
+        
+        return false;
+    }
+    
     /**
      * Get the physical level object at the specified location.
      * @param col Column we want to look at
@@ -113,6 +157,28 @@ public class Level extends Sprite implements Disposable, IElement
         }
         
         //nothing was found
+        return null;
+    }
+    
+    /**
+     * Get the level object
+     * @param col Column
+     * @param row Row
+     * @return the level object at the specified location, if none found null is returned
+     */
+    public LevelObject getLevelObject(final int col, final int row)
+    {
+        for (int i = 0; i < levelObjects.size(); i++)
+        {
+            //get the current level object
+            LevelObject object = levelObjects.get(i);
+            
+            //if this object is at the location, return it
+            if (object.equals(col, row))
+                return object;
+        }
+        
+        //no object was found
         return null;
     }
     
@@ -161,12 +227,61 @@ public class Level extends Sprite implements Disposable, IElement
     }
     
     /**
-     * Add level object to list
-     * @param object Level object we want to add
+     * Count the boxes
+     * @return The total number of boxes in this level
      */
-    public void add(final LevelObject object)
+    public int getBoxCount()
     {
-        //add object to list
+        int count = 0;
+        
+        for (int i = 0; i < levelObjects.size(); i++)
+        {
+            //count this if it is a box
+            if (levelObjects.get(i).isBox())
+                count++;
+        }
+        
+        //return the total
+        return count;
+    }
+    
+    /**
+     * Add level object to the level
+     * @param object Object we want to add
+     * @param col Column location
+     * @param row Row location
+     */
+    public void add(final LevelObject object, final int col, final int row)
+    {
+        //set (col, row) location
+        object.setCol(col);
+        object.setRow(row);
+        
+        //assign the starting location as well
+        object.setStart(col, row);
+        
+        //assign the destination
+        object.setDestination(col, row);
+
+        //the goal is half the size of the default dimensions
+        if (object.isGoal())
+        {
+            //set the dimensions of the object
+            object.setWidth(Level.DEFAULT_DIMENSION / 2);
+            object.setHeight(Level.DEFAULT_DIMENSION / 2);
+        }
+        else
+        {
+            //set the dimensions of the object
+            object.setWidth(Level.DEFAULT_DIMENSION);
+            object.setHeight(Level.DEFAULT_DIMENSION);
+        }
+
+        //set coordinates
+        object.setX(getStartX(object) + (Level.DEFAULT_DIMENSION / 2) - (object.getWidth() / 2));
+        object.setY(getStartX(object) + (Level.DEFAULT_DIMENSION / 2) - (object.getHeight() / 2));
+        
+        //add to list
         this.levelObjects.add(object);
     }
     
@@ -234,6 +349,29 @@ public class Level extends Sprite implements Disposable, IElement
         return (getX() + ((double)Level.DEFAULT_DIMENSION * col));
     }
     
+    /**
+     * Is the level completed?
+     * @return true if all boxes are placed above all goals, false otherwise
+     */
+    public boolean hasCompleted()
+    {
+        for (int i = 0; i < levelObjects.size(); i++)
+        {
+            LevelObject object = levelObjects.get(i);
+            
+            //we only want to check the boxes
+            if (!object.isBox())
+                continue;
+            
+            //the box is not assigned the 'on goal' animation, the level is not completed
+            if (!object.hasAnimation(Box.ON_GOAL))
+                return false;
+        }
+        
+        //all boxes are on a goal
+        return true;
+    }
+    
     @Override
     public void update(final Engine engine) throws Exception
     {
@@ -297,6 +435,16 @@ public class Level extends Sprite implements Disposable, IElement
         {
             for (int row = 0; row < getRows(); row++)
             {
+                //there must be a physical object in all directions in order for there to be a floor here
+                if (!hasPhysicalLevelObjectEast(col, row))
+                    continue;
+                if (!hasPhysicalLevelObjectWest(col, row))
+                    continue;
+                if (!hasPhysicalLevelObjectNorth(col, row))
+                    continue;
+                if (!hasPhysicalLevelObjectSouth(col, row))
+                    continue;
+                
                 //set floor location to current level object
                 floor.setLocation(getStartX(col), getStartY(row));
 
