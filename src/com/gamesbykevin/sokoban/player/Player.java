@@ -148,7 +148,7 @@ public final class Player implements Disposable, IElement
      * Set the character's starting location, this is performed when starting a level
      * @param start The object containing column, row
      */
-    public void setCharacterStart(final Cell start)
+    public void setCharacterStart(final Cell start) throws Exception
     {
         //set starting point
         this.character.setStart(start);
@@ -345,7 +345,7 @@ public final class Player implements Disposable, IElement
      * @param keyboard Object containing human keyboard input
      * @param levels Object containing all the levels
      */
-    private void checkInput(final Keyboard keyboard, final Levels levels)
+    private void checkInput(final Keyboard keyboard, final Levels levels) throws Exception
     {
         //get the current level
         Level level = levels.getLevel();
@@ -550,7 +550,7 @@ public final class Player implements Disposable, IElement
     }
     
     @Override
-    public void render(final Graphics graphics)
+    public void render(final Graphics graphics) throws Exception
     {
         //draw character
         if (getCharacter() != null)

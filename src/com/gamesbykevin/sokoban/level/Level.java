@@ -218,7 +218,7 @@ public class Level extends Sprite implements Disposable, IElement
     /**
      * Move all of the level objects back to their original starting position
      */
-    public void reset()
+    public void reset() throws Exception
     {
         for (int i = 0; i < levelObjects.size(); i++)
         {
@@ -413,7 +413,7 @@ public class Level extends Sprite implements Disposable, IElement
      * @param object The object representing the box
      * @return true if a box was placed onto a goal for the first time, false time
      */
-    private boolean checkBoxAnimation(final LevelObject object)
+    private boolean checkBoxAnimation(final LevelObject object) throws Exception
     {
         //is there a goal that has the same location as the box
         boolean match = false;
@@ -468,7 +468,7 @@ public class Level extends Sprite implements Disposable, IElement
     }
     
     @Override
-    public void render(final Graphics graphics)
+    public void render(final Graphics graphics) throws Exception
     {
         //draw the floor first
         for (int col = 0; col < getColumns(); col++)

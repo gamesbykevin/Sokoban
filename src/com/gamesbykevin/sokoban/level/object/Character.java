@@ -25,7 +25,7 @@ public final class Character extends LevelObject
     }
     
     @Override
-    public final void reset()
+    public final void reset() throws Exception
     {
         //call parent reset
         super.reset();
@@ -41,28 +41,28 @@ public final class Character extends LevelObject
     protected final void setup() throws Exception
     {
         //character facing north
-        Animation north = new Animation();
-        north.add(384, 0, 37, 60, DEFAULT_DELAY);
+        Animation north = new Animation(384, 0, 37, 60, DEFAULT_DELAY);
+        //north.add(384, 0, 37, 60, DEFAULT_DELAY);
         north.add(362, 128, 37, 60, DEFAULT_DELAY);
         north.add(362, 188, 37, 60, DEFAULT_DELAY);
         north.setLoop(true);
         
         //character facing south
-        Animation south = new Animation();
-        south.add(362, 248, 37, 59, DEFAULT_DELAY);
+        Animation south = new Animation(362, 248, 37, 59, DEFAULT_DELAY);
+        //south.add(362, 248, 37, 59, DEFAULT_DELAY);
         south.add(357, 362, 37, 59, DEFAULT_DELAY);
         south.add(320, 362, 37, 59, DEFAULT_DELAY);
         south.setLoop(true);
         
         //character facing east
-        Animation east = new Animation();
-        east.add(320, 128, 41, 58, DEFAULT_DELAY);
+        Animation east = new Animation(320, 128, 41, 58, DEFAULT_DELAY);
+        //east.add(320, 128, 41, 58, DEFAULT_DELAY);
         east.add(320, 245, 42, 58, DEFAULT_DELAY);
         east.setLoop(true);
         
         //character facing west
-        Animation west = new Animation();
-        west.add(320, 186, 42, 58, DEFAULT_DELAY);
+        Animation west = new Animation(320, 186, 42, 58, DEFAULT_DELAY);
+        //west.add(320, 186, 42, 58, DEFAULT_DELAY);
         west.add(320, 304, 42, 58, DEFAULT_DELAY);
         west.setLoop(true);
         

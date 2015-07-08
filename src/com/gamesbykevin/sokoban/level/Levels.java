@@ -435,7 +435,7 @@ public final class Levels implements Disposable, IElement
     }
     
     @Override
-    public void render(final Graphics graphics)
+    public void render(final Graphics graphics) throws Exception
     {
         if (progress != null)
         {

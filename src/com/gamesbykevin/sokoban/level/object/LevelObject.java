@@ -110,7 +110,7 @@ public abstract class LevelObject extends Sprite implements Disposable
     /**
      * Place the level object back at the start location
      */
-    public void reset()
+    public void reset() throws Exception
     {
         //move back to start
         this.setCol(getStart());
@@ -284,8 +284,8 @@ public abstract class LevelObject extends Sprite implements Disposable
      */
     protected void addAnimation(final int x, final int y, final int w, final int h, final String key)
     {
-        Animation animation = new Animation();
-        animation.add(x, y, w, h, DEFAULT_DELAY);
+        Animation animation = new Animation(x, y, w, h, DEFAULT_DELAY);
+        //animation.add(x, y, w, h, DEFAULT_DELAY);
         animation.setLoop(false);
         
         addAnimation(animation, key);
@@ -296,7 +296,7 @@ public abstract class LevelObject extends Sprite implements Disposable
         super.getSpriteSheet().add(animation, key);
     }
     
-    public void setAnimation(final String key)
+    public void setAnimation(final String key) throws Exception
     {
         super.getSpriteSheet().setCurrent(key);
     }
@@ -364,9 +364,12 @@ public abstract class LevelObject extends Sprite implements Disposable
         }
     }
     
-    public void render(final Graphics graphics, final Image image)
+    public void render(final Graphics graphics, final Image image) throws Exception 
     {
-        //draw the object
-        super.draw(graphics, image);
+        if (image != null)
+        {
+            //draw the object
+            super.draw(graphics, image);
+        }
     }
 }
